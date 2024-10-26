@@ -35,73 +35,68 @@ for student in students:
 print(commends)
 
 
-def output_in_numder(lst: list, string: str) -> str:
+def output_in_number(lst: list, string: str):
     print(f'\tСписок {string}:')
     for char in lst:
         print(f'\t\t{lst.index(char)+1}.{char}')
 
 
-def int_number() -> int:
-    num = input('Введите номер: \n')
-    if num.isdigit():
-        num = int(num)
-        return num
-    else:
-        print('\t\t\tВвод выполнен неверно!!\n\t\t\tПопробуйте еще раз:')
-        return int_number()
+def get_number(text: str) -> int:
+    while True:
+        num = input(text)
+        if num.isdigit():
+            num = int(num)
+            return num
+        else:
+            print('\t\t\tВвод выполнен неверно!!\n\t\t\tПопробуйте еще раз:')
 
-def int_name_number(lst: list) -> tuple[int, str]:
-    num = input('Введите номер: \n')
-    if num.isdigit():
-        num = int(num)
-        return num, lst[num-1]
-    else:
-        print('\t\t\tВвод выполнен неверно!!\n\t\tПопробуйте еще раз:')
-        return int_number(lst)
 
 def resolution() -> int:
-    print('Желаете продолжить?\n1.Да/2.Нет')
-    res = int_number()
-    if res == 1:
-        return res
-    elif res == 2:
-        return res
-    else:
-        print('\t\t\t\t!!!Неверный ввод!!!')
-        resolution()
+    while True:
+        res = get_number('Желаете продолжить?\n1.Да/2.Нет')
+        if res == 1 or res == 2:
+            return res
+        else:
+            print('\t\t\t\t!!!Неверный ввод!!!')
+
+
+def check_for_inclusion_in_list(list: list, text1: str, text2: str, text3: str) -> str:
+    while True:
+        print(text1)
+        output_in_number(list, text2)
+        i = get_number(text3) - 1
+        if i in range(len(list)):
+            return list[i]
+        else:
+            print('\t\t\t!!!Введен неверный номер!!!')
 
 
 while True:
-    command = input('Введите команду: ')
-    if command.isdigit():
-        command = int(command)
-    else:
-        print('\t\tВвод выполнен неверно!')
+    command = get_number('Введите номер: \n')
     if command == 1:
         print('1. Добавить оценку ученика по предмету')
-        print('\tВыберите студента:')
-        output_in_numder(students, 'учеников')
-        number_stud, name_stud = int_name_number(students)
-        print('\tВыберите предмет:')
-        output_in_numder(classes, 'предметов')
-        number_clas, name_clas = int_name_number(classes)
+        name_stud = check_for_inclusion_in_list(students, 'Выберите студента: ', 'учеников', 'Введите номер ученика: ')
+        name_clas = check_for_inclusion_in_list(classes, 'Выберите предмет: ', 'предметов', 'Введите номер предмета: ')
         while True:
-            print('Введите новую оценку: ')
-            mark = int_number()
+            mark = get_number('Введите новую оценку: ')
             if 0 < mark < 6:
                 students_marks[name_stud][name_clas].append(mark)
                 print(f'Для {name_stud} по предмету {name_clas} добавлена оценка {mark}')
                 print()
                 break
             else:
-                print('\t\t\t!!!Учеников оценивают по пятибалльной шкале!!! ')
+                    print('\t\t\t!!!Учеников оценивают по пятибалльной шкале!!!')
     elif command == 2:
         print('2. Вывести средний балл по всем предметам по каждому ученику')
         for stud in students:
             print(stud)
             for clas in classes:
                 marks_sum = sum(students_marks[stud][clas])
+                if marks_sum == 0:
+                    marks_sum = 1
                 marks_count = len(students_marks[stud][clas])
+                if marks_count == 0:
+                    marks_count = 1
                 print(f'{clas} - {marks_sum // marks_count}')
             print()
     elif command == 3:
@@ -113,54 +108,71 @@ while True:
             print()
     elif command == 4:
         print('4.Удалить ученика из журнала')
-        output_in_numder(students,'учеников')
-        print()
-        print('\tВведите номер студента которого нужно удалить:')
-        student_number, student_name = int_name_number(students)
-        students.remove(student_name)
-        del students_marks[student_name]
-        output_in_numder(students,'учеников')
+        stud_name = check_for_inclusion_in_list(students, 'Выберите студента: ', 'учеников', 'Введите номер ученика: ')
+        students.remove(stud_name)
+        del students_marks[stud_name]
+        output_in_number(students,'учеников')
         print()
     elif command == 5:
         print('5.Добавить ученика в журнал')
-        new_student_name = input('Введи имя нового ученика:\n')
-        students.append(new_student_name)
-        students.sort()
-        students_marks[new_student_name] = {}
-        for clas in classes:
-            students_marks[new_student_name][clas] = []
-        output_in_numder(students,'учеников')
-        print()
+        while True:
+            output_in_number(students, 'учеников')
+            new_student_name = input('Введи имя нового ученика:\n')
+            if new_student_name.isalpha():
+                if not new_student_name in students:
+                    students.append(new_student_name)
+                    students.sort()
+                    students_marks[new_student_name] = {}
+                    for clas in classes:
+                        students_marks[new_student_name][clas] = []
+                    output_in_number(students,'учеников')
+                    print()
+                    break
+                else:
+                    print('\t\t\t!!!Ученик с таким именем уже есть в журнале!!!')
+            else:
+                print('\t\t\t!!!Имя не должно содержать цифр!!!')
     elif command == 6:
         print('6.Переименовать ученика в журнале')
-        output_in_numder(students,'учеников')
-        print('\t\t\tВыберите ученика которого нужно переименовать:')
-        student_number, student_name = int_name_number(students)
-        new_student_name = input('Введи новое имя ученика:\n')
-        students[student_number] = new_student_name
-        students.sort()
-        students_marks[new_student_name] = {}
-        for clas in classes:
-            students_marks[new_student_name][clas] = students_marks[student_name][clas]
-        del students_marks[student_name]
-        output_in_numder(students,'учеников')
-        print()
+        student_name = check_for_inclusion_in_list(students, 'Выберите студента: ', 'учеников', 'Введите номер ученика: ')
+        student_index = students.index(student_name)
+        while True:
+            new_student_name = input('Введи новое имя ученика:\n')
+            if new_student_name.isalpha():
+                if not new_student_name in students:
+                    students[student_index] = new_student_name
+                    students.sort()
+                    students_marks[new_student_name] = {}
+                    for clas in classes:
+                        students_marks[new_student_name][clas] = students_marks[student_name][clas]
+                    del students_marks[student_name]
+                    output_in_number(students,'учеников')
+                    print()
+                    break
+                else:
+                    print('\t\t\t!!!Ученик с таким именем уже есть в журнале!!!')
+            else:
+                print('\t\t\t!!!Имя не должно содержать цифр!!!')
     elif command == 7:
         print('7.Удалить предмет из журнала')
-        output_in_numder(classes,'предметов')
-        print('\tВыберите предмет:')
-        clas_number = int_number()
-        classes.pop(clas_number-1)
-        output_in_numder(classes,'предметов')
-        print()
+        while True:
+            output_in_number(classes,'предметов')
+            clas_index = get_number('Выберите предмет: ') - 1
+            if clas_index in range(len(classes)):
+                name_clas = classes[clas_index - 1]
+                classes.pop(clas_index)
+                output_in_number(classes,'предметов')
+                print()
+                break
+            else:
+                print('Неверный ввод!')
     elif command == 8:
         print('8.Добавить предмет в журнал')
-        print('\tУкажите число добавляемых предметов: ')
-        quantity_clas = int_number()
+        quantity_clas = get_number('Укажите число добавляемых предметов: ')
         if quantity_clas == 0:
             continue
         elif quantity_clas == 1:
-            output_in_numder(classes, 'предметов')
+            output_in_number(classes, 'предметов')
             new_clas = input('Введите название нового предмета:\n')
             if new_clas in classes:
                 print('Такой предмет уже есть!')
@@ -168,11 +180,11 @@ while True:
                 classes.append(new_clas)
                 for stud in students:
                     students_marks[stud][new_clas] = []
-                output_in_numder(classes, 'предметов')
+                output_in_number(classes, 'предметов')
         elif quantity_clas >= 1:
             list_new_clas = []
             for i in range(quantity_clas):
-                new_clas = input('Введите название нового предмета:\n')
+                new_clas = input(f'Введите название {i+1} предмета:\n')
                 if new_clas in classes:
                     print('Такой предмет уже есть!')
                 else:
@@ -181,68 +193,79 @@ while True:
             for stud in students:
                 for clas in list_new_clas:
                     students_marks[stud][clas] = []
-            output_in_numder(classes, 'предметов')
+            output_in_number(classes, 'предметов')
         print()
     elif command == 9:
         print('9.Переименовать предмет в журнале')
-        print('\tВыберите предмет:')
-        output_in_numder(classes, 'предметов')
-        number_old_clas, name_old_clas = int_name_number(classes)
-        new_name_clas = input('Введите новое название предмета:\n')
-        classes[number_old_clas] = new_name_clas
-        for stud in students:
-            students_marks[stud][new_name_clas] = students_marks[stud][name_old_clas]
-            del students_marks[stud][name_old_clas]
-        output_in_numder(classes, 'предметов')
-        print()
+        name_old_clas = check_for_inclusion_in_list(classes,'Выберите предмет', 'предметов', 'Введите номер предмета: ')
+        index_old_clas = classes.index(name_old_clas)
+        while True:
+            new_name_clas = input('Введите новое название предмета:\n')
+            if not new_name_clas in classes:
+                classes[index_old_clas] = new_name_clas
+                for stud in students:
+                    students_marks[stud][new_name_clas] = students_marks[stud][name_old_clas]
+                    del students_marks[stud][name_old_clas]
+                output_in_number(classes, 'предметов')
+                print()
+                break
+            else:
+                print('Такой предмет уже есть в журнале!')
     elif command == 10:
         print('10.Удалить оценку из журнала')
-        print('\tВыберите студента:')
-        output_in_numder(students, 'учеников')
-        number_stud, name_stud = int_name_number(students)
-        print('\tВыберите предмет:')
-        output_in_numder(classes, 'предметов')
-        number_clas, name_clas = int_name_number(classes)
-        print('\tВыберите оценку')
-        output_in_numder(students_marks[name_stud][name_clas], 'оценок')
-        number_mark = int_number()
-        students_marks[name_stud][name_clas].pop(number_mark-1)
-        print(f'{name_stud} - {name_clas} = {students_marks[name_stud][name_clas]}')
-        print()
+        name_stud = check_for_inclusion_in_list(students,'Выберите студента', 'учеников', 'Введите номер ученика: ')
+        name_clas = check_for_inclusion_in_list(classes,'Выберите предмет', 'предметов', 'Введите номер предмета: ')
+        while True:
+            for i in range(len(students_marks[name_stud][name_clas])):
+                print(f'{i + 1}.{students_marks[name_stud][name_clas][i]}')
+            number_mark = get_number('Выберите номер удаляемой оценки: ')
+            if number_mark - 1 in range(len(students_marks[name_stud][name_clas])):
+                students_marks[name_stud][name_clas].pop(number_mark-1)
+                print(f'{name_stud} - {name_clas} = {students_marks[name_stud][name_clas]}')
+                print()
+                break
+            else:
+                print('Неверный ввод!')
     elif command == 11:
         print('11.Изменить оценку в журнале')
-        print('\tВыберите студента:')
-        output_in_numder(students, 'учеников')
-        number_stud, name_stud = int_name_number(students)
-        print('\tВыберите предмет:')
-        output_in_numder(classes, 'предметов')
-        number_clas, name_clas = int_name_number(classes)
-        print('\tВыберите оценку')
-        output_in_numder(students_marks[name_stud][name_clas], 'оценок')
-        number_mark = int_number()
-        print('\tВведите новую оценку')
-        new_mark = int_number()
-        students_marks[name_stud][name_clas][number_mark-1] = new_mark
-        print(f'{name_stud} - {name_clas} = {students_marks[name_stud][name_clas]}')
-        print()
+        name_stud = check_for_inclusion_in_list(students,'Выберите студента', 'учеников', 'Введите номер ученика: ')
+        name_clas = check_for_inclusion_in_list(classes,'Выберите предмет', 'предметов', 'Введите номер предмета: ')
+        while True:
+            print('\tВыберите оценку')
+            for i in range(len(students_marks[name_stud][name_clas])):
+                print(f'{i + 1}.{students_marks[name_stud][name_clas][i]}')
+            index_mark = get_number('Выберите номер оценки которую нужно изменить: ') - 1
+            if index_mark in range(len(students_marks[name_stud][name_clas])):
+                while True:
+                    new_mark = get_number('Введите новую оценку: ')
+                    if 0 < new_mark < 6:
+                        students_marks[name_stud][name_clas][index_mark] = new_mark
+                        print(f'{name_stud} - {name_clas} = {students_marks[name_stud][name_clas]}')
+                        print()
+                        break
+                    else:
+                        print('\t\t\t!!!Учеников оценивают по пятибалльной шкале!!!')
+                break
+            else:
+                print('Неверный ввод!')
     elif command == 12:
         print('12.Вывод всех оценок по предметам ученика')
-        print('\tВыберите ученика:')
-        output_in_numder(students, 'учеников')
-        number_name_stud, name_stud = int_name_number(students)
+        name_stud = check_for_inclusion_in_list(students,'Выберите студента', 'учеников', 'Введите номер ученика: ')
         print(name_stud)
         for clas in classes:
             print(f'\t\t{clas} - {students_marks[name_stud][clas]}')
         print()
     elif command == 13:
         print('13.Вывод среднего балла по предметам ученика')
-        print('\tВыберите ученика:')
-        output_in_numder(students, 'учеников')
-        number_name_stud, name_stud = int_number(students)
+        name_stud = check_for_inclusion_in_list(students,'Выберите студента', 'учеников', 'Введите номер ученика: ')
         print(name_stud)
         for clas in classes:
             marks_sum = sum(students_marks[name_stud][clas])
+            if marks_sum == 0:
+                marks_sum = 1
             marks_count = len(students_marks[name_stud][clas])
+            if marks_count == 0:
+                marks_count = 1
             print(f'\t\t{clas} - {marks_sum // marks_count}')
         print()
     elif command == 14:
